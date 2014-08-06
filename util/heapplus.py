@@ -2,13 +2,21 @@
 import math
 
 class HeapPlus:
-	iTOP=1
+	"""
+	this heap implementation contains a dictionary
+	storing the index positions of the objects in the heap.
+	This allows a constant time search as opposed to a log(N)
+	as in the standard heap
+	"""
+
+	iTOP=1 #index of the first element, ie the minimum
 	def __init__(self):
 		self.v=[None] #exclude v[0] for semplicity
-		self.idx={}
+		self.idx={} #(obj:idx)
 		self.size=0
 	def __lastIndex(self):
-		return self.size #note the front padded None
+		#last is not (size-1) since we start from index 1
+		return self.size  
 
 	def __parent(self,i):
 		return int(math.floor(i/2))
@@ -55,14 +63,19 @@ class HeapPlus:
 		return i
 
 	def __swap(self,i,j):
-		self.idx[self.v[i][1]]=j
-		self.idx[self.v[j][1]]=i
+		#first update idx
+		obj_i=self.v[i][1]
+		self.idx[obj_i]=j
+		
+		obj_j=self.v[j][1]
+		self.idx[obj_j]=i
 
+		#second  swap
 		temp=self.v[i]
 		self.v[i]=self.v[j]
 		self.v[j]=temp
 	
-	def add(self, key, obj):
+	def push(self, key, obj):
 		if obj not in self.idx:
 			self.v.append((key,obj))
 			self.size+=1
@@ -83,6 +96,7 @@ class HeapPlus:
 		return None 
 
 	def __remove_idx(self, i):
+		#move to the last position
 		self.__swap(i, self.__lastIndex())
 
 		rem_key, rem_obj=self.v.pop() 
@@ -99,12 +113,22 @@ class HeapPlus:
 	def updateKey(self, new_key, obj):
 		i=self.idx[obj]
 		self.v[i]=(new_key,obj)
+		#one of the two bubble will do nothing
 		i=self.__bubbleUp(i)
 		self.__bubbleDwn(i)
-		
+	
 	def __str__(self):
 		return str(self.v)
 	def __repr__(self):
 		return self.__str__()
 
+if __name__=='__main__':
+	h=HeapPlus()
+	h.push(2,'c')
+	h.push(1,'a')
+	h.push(1,'b')
+	h.push(1.5,'d')
+	h.push(0.5,'e')
+	while h.size>0:
+		print h.pop()
 
