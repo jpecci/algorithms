@@ -3,19 +3,19 @@ import math
 
 class HeapPlus:
 	"""
-	this heap implementation contains a dictionary
+	this implementation contains a dictionary
 	storing the index positions of the objects in the heap.
-	This allows a constant time search as opposed to a log(N)
-	as in the standard heap
+	This allows a constant time lookup as opposed to a O(N)
+	as in the standard heap.
 	"""
 
-	iTOP=1 #index of the first element, ie the minimum
+	iTOP=1 #index of the first element, ie the min element
 	def __init__(self):
 		self.v=[None] #exclude v[0] for semplicity
 		self.idx={} #(obj:idx)
 		self.size=0
 	def __lastIndex(self):
-		#last is not (size-1) since we start from index 1
+		#last element is not (size-1) since we start from index 1
 		return self.size  
 
 	def __parent(self,i):
@@ -30,11 +30,11 @@ class HeapPlus:
 	def __bubbleUp(self,i):
 		 
 		while i>HeapPlus.iTOP:
-			key_child=self.v[i][0]
+			key=self.v[i][0]
 			i_parent=self.__parent(i)
 			key_parent=self.v[i_parent][0]
 
-			if key_child < key_parent:
+			if key < key_parent:
 				self.__swap(i, i_parent)
 				i=i_parent
 			else:
@@ -44,16 +44,20 @@ class HeapPlus:
 	def __bubbleDwn(self,i):
 		
 		while i<self.__lastIndex():
-			key_parent=self.v[i][0]
+			key=self.v[i][0]
+
 			i_childL=self.__childL(i)
+			i_childR=self.__childR(i)
+
 			if i_childL <=self.__lastIndex():
 				i_child=i_childL
-				i_childR=self.__childR(i)
 				if i_childR<=self.__lastIndex():
+					#if there are 2 children choose the one  with smallest key
 					i_child= i_childL if self.v[i_childL][0]<self.v[i_childR][0] else i_childR
+	
 				key_child=self.v[i_child][0]
 			
-				if key_child < key_parent:
+				if key_child < key:
 					self.__swap(i, i_child)
 					i=i_child
 				else:
@@ -70,7 +74,7 @@ class HeapPlus:
 		obj_j=self.v[j][1]
 		self.idx[obj_j]=i
 
-		#second  swap
+		#then swap
 		temp=self.v[i]
 		self.v[i]=self.v[j]
 		self.v[j]=temp
@@ -110,7 +114,7 @@ class HeapPlus:
 		i=self.idx[obj]
 		return self.__remove_idx(i)
 	
-	def updateKey(self, new_key, obj):
+	def update_key(self, new_key, obj):
 		i=self.idx[obj]
 		self.v[i]=(new_key,obj)
 		#one of the two bubble will do nothing
