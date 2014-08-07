@@ -121,7 +121,8 @@ class HeapLookUp:
 		#one of the two bubble will do nothing
 		i=self.__bubbleUp(i)
 		self.__bubbleDwn(i)
-	
+	def size(self):
+		return self.size
 	def __str__(self):
 		return str(self.v)
 	def __repr__(self):
