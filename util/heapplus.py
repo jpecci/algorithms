@@ -139,6 +139,8 @@ class HeapMax:
 	def pop(self):
 		key,obj=heapq.heappop(self.v)
 		return (-key, obj)
+	def top(self):
+		return (-key,obj)
 	def __str__(self):
 		return str(self.v)
 	def __repr__(self):
