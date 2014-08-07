@@ -140,7 +140,10 @@ class HeapMax:
 		key,obj=heapq.heappop(self.v)
 		return (-key, obj)
 	def top(self):
+		key,obj=self.v[0]
 		return (-key,obj)
+	def size(self):
+		return len(self.v)
 	def __str__(self):
 		return str(self.v)
 	def __repr__(self):
@@ -148,13 +151,14 @@ class HeapMax:
 
 if __name__=='__main__':
 	hm=HeapLookUp()
-	hM=HeapMax()
+	
 	hm.push(2,'c')
 	hm.push(1,'a')
 	hm.push(1,'b')
 	hm.push(1.5,'d')
 	hm.push(0.5,'e')
 
+	hM=HeapMax()
 	hM.push(2,'c')
 	hM.push(1,'a')
 	hM.push(1,'b')
