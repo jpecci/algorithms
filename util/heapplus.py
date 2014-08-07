@@ -1,7 +1,8 @@
 
 from math  import floor
+import heapq
 
-class HeapPlus:
+class HeapLookUp:
 	"""
 	Canonical heap with the addition of a dictionary
 	storing the index positions of the objects in the heap.
@@ -11,7 +12,7 @@ class HeapPlus:
 
 	iTOP=1 #index of the first element, ie the min element
 	def __init__(self):
-		self.v=[None] #exclude v[0] for semplicity
+		self.v=[None] #(key,obj) exclude v[0] for semplicity
 		self.idx={} #(obj:idx)
 		self.size=0
 	def __lastIndex(self):
@@ -93,7 +94,7 @@ class HeapPlus:
 	def pop(self):
 		return self.__remove_idx(HeapPlus.iTOP)
 		
-	def get(self, obj):
+	def lookup(self, obj):
 		#return (key, obj)
 		if obj in self.idx:
 			return self.v[self.idx[obj]]
@@ -126,13 +127,37 @@ class HeapPlus:
 	def __repr__(self):
 		return self.__str__()
 
+class HeapMax:
+	"""
+	Heap that keeps the maximum value at the top.
+	This is implemented using the heapq module.
+	"""
+	def __init__(self):
+		self.v=[]
+	def push(self, key, obj):
+		heapq.heappush(self.v,(-key,obj))
+	def pop(self):
+		key,obj=heapq.heappop(self.v)
+		return (-key, obj)
+	def __str__(self):
+		return str(self.v)
+	def __repr__(self):
+		return self.__str__()
+
 if __name__=='__main__':
-	h=HeapPlus()
-	h.push(2,'c')
-	h.push(1,'a')
-	h.push(1,'b')
-	h.push(1.5,'d')
-	h.push(0.5,'e')
-	while h.size>0:
-		print h.pop()
+	hm=HeapLookUp()
+	hM=HeapMax()
+	hm.push(2,'c')
+	hm.push(1,'a')
+	hm.push(1,'b')
+	hm.push(1.5,'d')
+	hm.push(0.5,'e')
+
+	hM.push(2,'c')
+	hM.push(1,'a')
+	hM.push(1,'b')
+	hM.push(1.5,'d')
+	hM.push(0.5,'e')
+	while hm.size>0:
+		print "%s\t%s"%(hm.pop(),hM.pop())
 
