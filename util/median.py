@@ -22,7 +22,7 @@ class Median:
 		sz=self.size()
 		if sz == 0:
 			#push it anywhere
-			self.max.push(value)
+			self.max.push(value,None)
 
 		elif sz==1:
 			if len(self.min)>0:
@@ -49,14 +49,14 @@ class Median:
 		self.__rebalance()
 	
 	def size(self):
-		return self.max.size+len(self.min)
+		return self.max.size()+len(self.min)
 
 	def __rebalance(self):
-		diff=self.max.size-len(self.min)
+		diff=self.max.size()-len(self.min)
 		if diff>1:
 			value,obj=self.max.pop()
 			heappush(self.min,value)
-		elif gap<-1:
+		elif diff<-1:
 			value=heappop(self.min)
 			self.max.push(value,None)
 		else:
@@ -65,6 +65,6 @@ class Median:
 
 if __name__=="__main__":
 	m=Median()
-	for i in xrange(10):
+	for i in xrange(10,0,-1):
 		m.add(i)
-		print m.get()
+		print "%d \t %f"%(i,m.get())
