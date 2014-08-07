@@ -1,27 +1,41 @@
 class Node:
-	def __init__(self, value, parent= None, left=None, right=None):
-		self.value=value
+	def __init__(self, key, parent= None, left=None, right=None):
+		self.key=key
 		self.parent=parent
 		self.left=left
 		self.right=right
+	def isRoot(self):
+		return self.parent is None
+	def isLeaf(self):
+		return self.left is None and self.right is None
+	def isLeftChild(self):
+		if self.isRoot():
+			return False
+		return self.parent.left is self
+	def isRightChild(self):
+		if self.isRoot():
+			return False
+		return not self.__isLeftChild()
 	def __str__(self):
-		p='-' if self.parent is None else self.parent.value
-		l='-' if self.left is None else self.left.value 
-		r='-' if self.right is None else self.right.value 
-		return "(%s,%s,%s,%s)"%(self.value,p,l,r)
+		p='-' if self.parent is None else self.parent.key
+		l='-' if self.left is None else self.left.key
+		r='-' if self.right is None else self.right.key 
+		return "(%s,%s,%s,%s)"%(self.key,p,l,r)
 	def __repr__(self):
 		return self.__str__()
 
 class BST:
+	"""Binary Search Tree"""
+
 	def __init__(self):
 		self.root=None
 	
 	def find(self, node, subtree):
 		if subtree is None:
 			return None
-		if node.value==subtree.value:
+		if node.key==subtree.key:
 			return subtree
-		if node.value<subtree.value:
+		if node.key<subtree.key:
 			return self.find(node, subtree.left)
 		else:
 			return self.find(node, subtree.right)
@@ -33,7 +47,7 @@ class BST:
 		if  self.root is None:
 			self.root=node
 		else:
-			if node.value< subtree.value:
+			if node.key< subtree.key:
 				if subtree.left is None:
 					subtree.left=node
 					node.parent=subtree
@@ -45,71 +59,77 @@ class BST:
 					node.parent=subtree
 				else:
 					self.__add(node, subtree.right)
-
-	def remove_leaf(self, cursor):
-		if cursor.value< cursor.parent.value:
-			cursor.parent.left=None
-		else:
-			cursor.parent.right=None
-	def remove_single_branch(self, cursor):
-		if cursor.left is not None and cursor.right is  None:
-			if cursor.value<cursor.parent.value:
-				cursor.parent.left=cursor.left
-			else:
-				cursor.parent.right=cursor.left
-			cursor.left.parent=cursor.parent
-		elif cursor.left is  None and cursor.right is not None:
-			if cursor.value<cursor.parent.value:
-				cursor.parent.left=cursor.right
-			else:
-				cursor.parent.right=cursor.right
-			cursor.right.parent=cursor.parent
-	def remove_double_branch(self, cursor):
-		predecessor=self.predecessor(cursor)
-		self.swap(predecessor,cursor)
-		if cursor.left is None and cursor.right is None:
-			self.remove_leaf(cursor)
-		else:
-			self.remove_single_branch(cursor)
-
-	def swap(self, node1, node2):
-		print "swap is not working"
-		temp=node1.parent
-		node1.parent=node2.parent
-		node2.paren=temp
-
-		temp=node1.left
-		node1.left=node2.left
-		node2.left=temp
-
-		temp=node1.right
-		node1.right=node2.right
-		node2.right=temp
-
+	
 	def remove(self,node):
 		cursor=self.find(node, self.root)
 		if cursor is  None:
 			return None
 
 		#case 1
-		if cursor.left is None and cursor.right is None:
-			self.remove_leaf(cursor)
-		#case 2
-		elif cursor.left is not None and cursor.right is  None:
-			self.remove_single_branch(cursor)
-		elif cursor.left is  None and cursor.right is not None:
-			self.remove_single_branch(cursor)
+		if cursor.isLeaf():
+			return self.__remove_leaf(cursor)
+		#case 2 
+		elif (cursor.left is None) != (cursor.right is None):
+			#!= is like an XOR, ie only one of the two is true
+			return self.__remove_single_branch(cursor)
 		#case 3	
 		else:
-			self.remove_double_branch(cursor)
+			return self.__remove_double_branch(cursor)
+		
+
+
+	def __remove_leaf(self, cursor):
+		if cursor.isRoot():
+			self.root=None
+		else:
+			if cursor.isLeftChild():
+				cursor.parent.left=None
+			else:
+				cursor.parent.right=None
 		return cursor
 
+	def __remove_single_branch(self, cursor):
+		if cursor.left is not None and cursor.right is None:
+			if cursor.isRoot():
+				self.root=cursor.left
+			elif cursor.isLeftChild():
+				cursor.parent.left=cursor.left
+			else:
+				cursor.parent.right=cursor.left
+			cursor.left.parent=cursor.parent
+		
+		elif cursor.left is  None and cursor.right is not None:
+			if cursor.isRoot():
+				self.root=cursor.right
+			elif cursor.isLeftChild():
+				cursor.parent.left=cursor.right
+			else:
+				cursor.parent.right=cursor.right
+			cursor.right.parent=cursor.parent
+		
+		return cursor
+
+	def __remove_double_branch(self, cursor):
+		predecessor=self.predecessor(cursor)
+		#swap
+		temp=cursor.key
+		cursor.key=predecessor.key
+		predecessor.key=temp
+
+		if predecessor.isLeaf():
+			self.remove_leaf(predecessor)
+		else:
+			self.remove_single_branch(predecessor)
+		return predecessor
+
 	def max(self, subtree):
+		#just move ar right as you can
 		if subtree.right is None:
 			return subtree
 		return self.max(subtree.right)
 
 	def min(self, subtree):
+		#just move as left as you can
 		if subtree.left is None:
 			return subtree
 		return self.min(subtree.left)
@@ -124,7 +144,7 @@ class BST:
 		else:
 			cursorUp=cursor.parent
 			while cursorUp is not None:
-				if cursorUp.value < node.value:
+				if cursorUp.key < node.key:
 					return cursorUp					
 				cursorUp=cursorUp.parent
 		return cursor
@@ -139,7 +159,7 @@ class BST:
 		else:
 			cursorUp=cursor.parent
 			while cursorUp is not None:
-				if cursorUp.value > node.value:
+				if cursorUp.key > node.key:
 					return cursorUp					
 				cursorUp=cursorUp.parent
 		return cursor
@@ -165,12 +185,13 @@ class BST:
 			print subtree
 
 	def __str__(self):
-		output=self.traverse_inorder()
+		output=self.traverse(order='in')
 		return output
+
 if __name__=="__main__":
 	t=BST()
 	t.add(Node(10))
-	t.add(Node(10))
+	t.add(Node(11))
 	t.add(Node(5))
 	t.add(Node(8))
 	t.add(Node(4))
@@ -179,6 +200,7 @@ if __name__=="__main__":
 	t.add(Node(7))
 	t.add(Node(3))
 	print "find 8",t.find(Node(8),t.root)
+	print "find 6",t.find(Node(6),t.root)
 	print "find 13",t.find(Node(13),t.root)
 	print "max ",t.max(t.root)
 	print "min ",t.min(t.root)
@@ -191,8 +213,16 @@ if __name__=="__main__":
 	print "successor 10",t.successor(Node(10))
 	print "successor 5",t.successor(Node(5))
 	print "remove ",t.remove(Node(4))
+	t.traverse()
+	print "remove ",t.remove(Node(5))	
+	t.traverse()
 	print "remove ",t.remove(Node(6))
 	print "remove ",t.remove(Node(10))
 	t.traverse()
+	print "remove ",t.remove(Node(11))
+	t.traverse()
+	print "remove ",t.remove(Node(3))
+	print "remove ",t.remove(Node(8))
+	print "remove ",t.remove(Node(7))
 
 	
