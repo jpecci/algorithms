@@ -1,12 +1,12 @@
 
-import math
+from math  import floor
 
 class HeapPlus:
 	"""
-	this implementation contains a dictionary
+	Canonical heap with the addition of a dictionary
 	storing the index positions of the objects in the heap.
-	This allows a constant time lookup as opposed to a O(N)
-	as in the standard heap.
+	This allows a constant time lookup - faster than in 
+	the standard heap implementation.
 	"""
 
 	iTOP=1 #index of the first element, ie the min element
@@ -19,7 +19,7 @@ class HeapPlus:
 		return self.size  
 
 	def __parent(self,i):
-		return int(math.floor(i/2))
+		return int(floor(i/2))
 
 	def __childL(self,i):
 		return int(2*i)
