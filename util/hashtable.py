@@ -68,7 +68,7 @@ class HashTable:
 			cursor=cursor.next
 		if remove:
 			self.size-=1
-			if prev_cur is self.v[pos]:
+			if prev_cur is self.buckets[pos]:
 				self.buckets[pos]=cursor.next
 			else:
 				prev_cur.next=cursor.next
