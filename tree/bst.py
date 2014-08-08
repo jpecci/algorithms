@@ -117,9 +117,9 @@ class BST:
 		predecessor.key=temp
 
 		if predecessor.isLeaf():
-			self.remove_leaf(predecessor)
+			self.__remove_leaf(predecessor)
 		else:
-			self.remove_single_branch(predecessor)
+			self.__remove_single_branch(predecessor)
 		return predecessor
 
 	def max(self, subtree):
