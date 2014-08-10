@@ -30,7 +30,7 @@ class HeapLookUp:
 	
 	def __bubbleUp(self,i):
 		 
-		while i>HeapPlus.iTOP:
+		while i>HeapLookUp.iTOP:
 			key=self.v[i][0]
 			i_parent=self.__parent(i)
 			key_parent=self.v[i_parent][0]
@@ -92,7 +92,7 @@ class HeapLookUp:
 			print "%s already in heap. Not added!"%(obj)
 
 	def pop(self):
-		return self.__remove_idx(HeapPlus.iTOP)
+		return self.__remove_idx(HeapLookUp.iTOP)
 		
 	def lookup(self, obj):
 		#return (key, obj)
