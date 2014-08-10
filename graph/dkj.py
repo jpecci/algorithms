@@ -1,4 +1,5 @@
-from heapplus import HeapPlus
+from util.heap import HeapLookUp
+from util.general import time_func
 
 def dkj_naive(graph, start):
 	visited=set()
@@ -51,13 +52,6 @@ def dkj_fast(graph, start):
 	return visited_distances
 
 
-def run_and_time(name,f,*args):
-	print "%s running..."%name
-	start=time.time()
-	res=f(*args)
-	end=time.time()
-	print "\tfinished in %.4f mins"%( (end-start)/60.)
-	return res
 
 if __name__=='__main__':
 	from graph import Graph, Edge
@@ -72,7 +66,7 @@ if __name__=='__main__':
 			g.addVertex(str(x))
 		return list(g.vertexes.keys())
 
-	vertexes=run_and_time("created_vertexes",create_vertexes,N)
+	vertexes=time_func(create_vertexes,N)
 
 	def create_edges(N):
 		for x in xrange(50*N):
@@ -83,12 +77,12 @@ if __name__=='__main__':
 		   		and not g.isConnected(vertexes[j],vertexes[i]) :
 				g.addEdge(Edge(random.randint(1,10)),vertexes[i],vertexes[j])
 	 
-	run_and_time("create_edges",create_edges,N)
+	time_func(create_edges,N)
 
 	v_start=vertexes[0]
 	
 	hoops = run_and_time("bfs",bfs.bfs,g,v_start)
-	run_and_time("dfs",dfs.dfs,g,v_start)
+	time_func(dfs.dfs,g,v_start)
 	 
 	dists_fast=run_and_time("dkj_fast",dkj_fast,g,v_start)
  	#dists_naive=run_and_time("dkj_naive",dkj_naive,g,v_start)

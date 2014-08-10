@@ -12,7 +12,7 @@ def merge(a,b):
 	i=0
 	j=0
 	res=[]
-	for k in range(sz):
+	for k in xrange(sz):
 		if a[i]<=b[j]:
 			res.append(a[i])
 			i+=1
