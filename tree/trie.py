@@ -17,6 +17,7 @@ class TrieTree:
 	def __init__(self):
 		self.root=Node("",0)
 		self.num_words=0
+		self.num_nodes=0
 
 	def add_word(self, word):
 		self.__add_word(word, self.root)
@@ -29,6 +30,7 @@ class TrieTree:
 		#create the node if it doesnt exist
 		if tree.children[idx] is None:
 			tree.children[idx]=Node(letter,0)
+			self.num_nodes+=1
 
 		child=tree.children[idx]
 		if len(word)==1:
@@ -91,7 +93,10 @@ class TrieTree:
 			if node.value >0: #decrement only if it was a word 
 				self.num_words-=1
 			node.value=0
-
+	def __str__(self):
+		return "trie: words=%d, nodes=%d"%(self.num_words, self.num_nodes)
+	def __repr__(self):
+		return self.__str__()
 
 if __name__=='__main__':
 	t=TrieTree()
