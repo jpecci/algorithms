@@ -2,6 +2,10 @@ from util.heap import HeapLookUp
 from util.general import time_func
 
 def dkj_naive(graph, start):
+	"""return the  distance from start to each other vertex.
+	This function does not return the shorted paths
+	Running time O(n*m)
+	"""
 	visited=set()
 	visited.add(start)
 	distances=dict([(v,99999999) for v in graph.vertexes])
@@ -13,43 +17,47 @@ def dkj_naive(graph, start):
 		for edge, (tail,head) in graph.edges.items():
 			if tail in visited and head not in visited:
 				#print "look at %s->%s"%(tail,head)
-				new_dist=distances[tail]+edge.length
-				distances[head]=min(new_dist, distances[head])
+				score=distances[tail]+edge.length
+				distances[head]=min(score, distances[head])
 				if distances[head]<= min_score:
 					min_score=distances[head]
 					min_score_vertex=head
 		 
-		prev_size_visited=len(visited)
 		if min_score_vertex is not None:
-			#print "added ",min_score_vertex
 			visited.add(min_score_vertex)
 	return distances
 
 def dkj_fast(graph, start):
+	"""return the  distance from start to each other vertex.
+	This function does not return the shorted paths
+	Running time O(Nlog(N))
+	"""
 	 
-	not_visited_vertexes=HeapPlus()
+	#add all the vertexes: the key represents the minimum
+	#length to get to the vertex from any visited vertex
+	not_visited=HeapLookUp()
 	for v in graph.vertexes:
 		edge=graph.getEdge(start, v)
 		dist=99999999 if edge is None else edge.length		
-		not_visited_vertexes.add(dist, v)
+		not_visited.push(dist, v)
 	
-	visited_distances={}
-	visited_distances[start]=0
-	not_visited_vertexes.remove_obj(start)
+	visited_dist={start:0}
+	not_visited.remove_obj(start)
 
-	while not_visited_vertexes.size>0:
+	while not_visited.size>0:
 		
-		dist,vertex=not_visited_vertexes.pop() #heap returns the min
-		visited_distances[vertex]=dist
-		
-		for head,edge in graph.outBounds(vertex).items():
-			if not_visited_vertexes.get(head) is not None:
-				new_dist =visited_distances[vertex]+edge.length
-				old_dist, head= not_visited_vertexes.get(head)
-				if new_dist < old_dist:
-					not_visited_vertexes.updateKey(new_dist, head)
+		dist, v=not_visited.pop() #heap returns the min
+		visited_dist[v]=dist
+
+		#update the not-visited vertexes reachable from v
+		for head, edge in graph.outBounds(v).items():
+			if not_visited.lookup(head) is not None:
+				score =visited_dist[v] + edge.length
+				old_score, head= not_visited.lookup(head)
+				if score < old_score:
+					not_visited.update_key(score, head)
 	
-	return visited_distances
+	return visited_dist
 
 
 
@@ -58,7 +66,7 @@ if __name__=='__main__':
 	import  bfs, dfs 
 	import random,time
 
-	N=1000000
+	N=1000
 	g=Graph()
 
 	def create_vertexes(N):
@@ -66,7 +74,6 @@ if __name__=='__main__':
 			g.addVertex(str(x))
 		return list(g.vertexes.keys())
 
-	vertexes=time_func(create_vertexes,N)
 
 	def create_edges(N):
 		for x in xrange(50*N):
@@ -77,19 +84,12 @@ if __name__=='__main__':
 		   		and not g.isConnected(vertexes[j],vertexes[i]) :
 				g.addEdge(Edge(random.randint(1,10)),vertexes[i],vertexes[j])
 	 
+	vertexes=time_func(create_vertexes,N)
 	time_func(create_edges,N)
 
-	v_start=vertexes[0]
-	
-	hoops = run_and_time("bfs",bfs.bfs,g,v_start)
-	time_func(dfs.dfs,g,v_start)
-	 
-	dists_fast=run_and_time("dkj_fast",dkj_fast,g,v_start)
- 	#dists_naive=run_and_time("dkj_naive",dkj_naive,g,v_start)
-
-	keys_sorted=sorted(dists_fast, key=lambda x:dists_fast[x])
-	for k in keys_sorted[:10]:
-		print "to: %s lenF: %s hoops:%s"%(k, dists_fast[k],hoops.get(k))
-	print ""
-	for k in keys_sorted[-10:]:
-		print "to: %s lenF: %s hoops:%s"%(k, dists_fast[k],hoops.get(k))
+	time_func(bfs.bfs,g,vertexes[0])
+	time_func(dfs.dfs,g,vertexes[0])
+	time_func(dkj_fast,g,vertexes[0])
+	time_func(dkj_naive,g,vertexes[0])
+ 	
+ 
