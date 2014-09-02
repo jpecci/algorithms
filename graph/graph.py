@@ -1,3 +1,4 @@
+import itertools as it
 
 class Edge:
 	id = 0
@@ -34,9 +35,20 @@ class Graph:
 		self.vertexes[tail][1][head]=edge
 		self.vertexes[head][0][tail]=edge
 		self.edges[edge]=(tail,head)
-		 
+		
 	def getEdge(self, tail, head):
 		return self.outBounds(tail).get(head, None)
+
+	def removeEdge(self, edge):
+		tail,head=self.edges[edge]
+		del self.edges[edge]
+		del self.outBounds(tail)[head]
+		del self.inBounds(head)[tail] 	
+	
+	def removeVertex(self, vertex):
+		for edge in it.chain(self.inBounds(vertex).values(), self.outBounds(vertex).values()):
+			self.removeEdge(edge)
+		del self.vertexes[vertex]
 
 	def isConnected(self, tail, head):
 		return self.getEdge(tail,head) is not None
@@ -78,5 +90,6 @@ if __name__=='__main__':
 	g.addEdge(Edge(1),'s','c')
 	print g.isConnected('a','s')
 	print g.isConnected('a','c')
-	print g
+	#g.removeEdge(g.getEdge('b','a'))
+	g.removeVertex('a')
 	 
