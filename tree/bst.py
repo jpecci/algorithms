@@ -183,6 +183,12 @@ class BST:
 		
 		if order=='post':
 			print subtree
+	@staticmethod
+	def size(node):
+		"""compute the size of the subtree whose root is node"""
+		if node is None:
+			return 0
+		return 1+BST.size(node.left)+BST.size(node.right)
 
 	def __str__(self):
 		output=self.traverse(order='in')
@@ -199,6 +205,7 @@ if __name__=="__main__":
 	t.add(Node(6))
 	t.add(Node(7))
 	t.add(Node(3))
+	print "size: ",BST.size(t.root)
 	print "find 8",t.find(Node(8),t.root)
 	print "find 6",t.find(Node(6),t.root)
 	print "find 13",t.find(Node(13),t.root)
@@ -225,4 +232,5 @@ if __name__=="__main__":
 	print "remove ",t.remove(Node(8))
 	print "remove ",t.remove(Node(7))
 
+	print "size: ",BST.size(t.root)
 	
