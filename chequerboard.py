@@ -17,6 +17,9 @@ def move(pos, dir):
 	i_dir, j_dir=dir
 	return (i_pos+i_dir, j_pos+j_dir)
 
+def is_pos_ok(pos, size_i, size_j):
+	i, j =pos
+	return (0 <= i and i < size_i) and (0 <= j and j < size_j)
 
 @time_func
 def fill_board(start_pos, size_i, size_j):
@@ -28,10 +31,9 @@ def fill_board(start_pos, size_i, size_j):
 			return True
 		for dir in dirs:
 			next_pos=move(curr_pos, dir)
-			next_i, next_j =next_pos
-			if  0 <= next_i and next_i < size_i and \
-			    0 <= next_j and next_j < size_j:
-				
+			if  is_pos_ok(next_pos, size_i, size_j):
+				next_i, next_j=next_pos
+
 				if board[next_i, next_j]<0:
 					board[next_i, next_j]=counter
 					if helper(next_pos, counter+1):
@@ -45,6 +47,6 @@ def fill_board(start_pos, size_i, size_j):
 	return board  
 
 if __name__=="__main__":
-	start_pos=(3,3)
+	start_pos=(0,0)
 	ans=fill_board(start_pos, 6,6)
 	print ans
