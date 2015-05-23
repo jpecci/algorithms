@@ -1,4 +1,4 @@
-import itertools as 
+import itertools as it
 
 def flatten(xss):
 	"""flatten a list of a list"""
@@ -13,6 +13,15 @@ def flatMap(xs, op):
 def iflatMap(xs, op):
 	return iflatten(it.imap(op,xs))
 
+def foldRight(zero, op):
+	"""op(x0, op(x1, op(x2,zero)))"""
+	def helper(xs):
+		y=zero
+		for x in xs[::-1]:
+			y=op(x,y)
+		return y
+	return helper
+
 def foldRight_(xs, zero, op):
 	"""op(x0, op(x1, op(x2,zero)))
 	recursive implementation"""
@@ -24,12 +33,8 @@ def foldRight_(xs, zero, op):
 
 	return helper(xs, zero)
 
-def foldRight(xs, zero, op):
-	"""op(x0, op(x1, op(x2,zero)))"""
-	y=zero
-	for x in xs[::-1]:
-		y=op(x,y)
-	return y
+
+
 
 def foldLeft_(xs, zero, op):
 	"""op(op(op(zero,x0), x1), x2)
@@ -42,18 +47,21 @@ def foldLeft_(xs, zero, op):
 	
 	return helper(xs, zero)
 
-def foldLeft(xs, zero, op):
+def foldLeft(zero, op):
 	"""op(op(op(zero,x0), x1), x2)"""
-	y=zero
-	for x in xs:
-		y=op(y,x)
-	return y
+	def helper(xs):
+		y=zero
+		for x in xs:
+			y=op(y,x)
+		return y
+	return helper
+
 
 if __name__=="__main__":
 	import operator
 	xs=[1.,2.,3.]
-	print foldRight(xs, 1, operator.div)
-	print foldRight_(xs, 1, operator.div)
-	print foldLeft(xs, 1, operator.div)
+	print foldRight(1, operator.div)(xs)
+	print foldRight_(xs, 1, operator.div) 
+	print foldLeft(1, operator.div)(xs)
 	print foldLeft_(xs, 1, operator.div)
 	print flatten([[1,2,3],[4,5]])
