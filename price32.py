@@ -24,10 +24,11 @@ class Price32:
 
  	def _simplify(self):
  		f=self.frac
- 		if f.numerator>=f.denominator:
+ 		if f>0 and f.numerator>=f.denominator:
  			self.value+= int(f.numerator/f.denominator)
 			self.frac= Fraction(f.numerator%f.denominator, f.denominator)
- 	 
+ 	 	elif f<0:
+ 	 		raise NotImplemented
 
 
 	def __add__(self, other):
