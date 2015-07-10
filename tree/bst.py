@@ -183,6 +183,7 @@ class BST:
 		
 		if order=='post':
 			print subtree
+			
 	@staticmethod
 	def size(node):
 		"""compute the size of the subtree whose root is node"""

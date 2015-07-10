@@ -24,8 +24,14 @@ def mark_call(f):
 	return helper
 
 @mark_call
-def dummy(x,y):
+def dummy1(x,y):
 	return x+y
 
+def dummy2(x,y):
+	return x+y
+
+
 if __name__=='__main__':
- 	print dummy(1, y=2)
+	
+ 	print dummy1(1, y=2)
+ 	print time_func(dummy2)(1,y=2)

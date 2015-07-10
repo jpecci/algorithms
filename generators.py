@@ -8,11 +8,11 @@ def file_reader(filename, separator=','):
 			yield (int(timestamp), float(value))
 
 
-
-
+def max_per_period(iter, period):
+	for period, i in it.groupby(iter, period):
+		yield max(i, key=lambda (ts,v):v)
 
 if __name__=='__main__':
 	fn='/Users/jacopo/Downloads/dummy.csv'
-	reader=file_reader(fn)
-	for hour, iterator in it.groupby(reader, lambda item:get_hour(get_time(item[0]))):
-		print "hour={}, len={}".format(hour, len(list(iterator)))
+	i=max_per_period(file_reader(fn), lambda (ts,v): get_day(get_date(ts)))
+	

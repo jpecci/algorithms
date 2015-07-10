@@ -34,8 +34,6 @@ def foldRight_(xs, zero, op):
 	return helper(xs, zero)
 
 
-
-
 def foldLeft_(xs, zero, op):
 	"""op(op(op(zero,x0), x1), x2)
 	recursive implementation"""

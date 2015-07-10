@@ -22,7 +22,8 @@ def naive_partition(a, idx_pivot):
 
 def partition(a, s, e):
 	'''
-	puts the pivot element in the right position
+	it partitions the vector a[s:e], i.e. it
+ 	puts the pivot element in the right position
 	'''
 	pivot=a[s] #the first element of the array
 	j=s+1
@@ -32,15 +33,18 @@ def partition(a, s, e):
 			j+=1
 		else:
 			pass
+	#move pivot from s -> j-1
 	i_pivot=j-1
 	swap(a,s,i_pivot)
 	return i_pivot
 
 def quick_sort(a, s, e):
-	#print "input: %d %s"%(len(a[s:e]),a[s:e])
-
+	'''
+	sorts the vector a[s:e]
+	'''
 	if len(a[s:e])<=1:
-		return
+		return #a 1-element vector is already sorted
+	
 	#print "pivot: ",a[s]
 	i_pivot=partition(a, s, e)
 	#print "partition ",a[s:e]
