@@ -2,7 +2,7 @@
 import time
 import datetime as dt
 from odds import Odds
-from scheduler import Scheduler, Event
+from utils.scheduler import Scheduler, Event
 from data import callAPI
 
 marketId=1.119521111

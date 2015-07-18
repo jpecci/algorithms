@@ -6,14 +6,19 @@ import time
 
 class Event:
 	def __init__(self, start, func, args, period=None, end=None):
+		if (period is None and end is not None) or (period is not None and end is None):
+			raise Exception("bad arguments period/end") 
 		self.start=start
 		self.func=func
 		self.args=args
 		self.period=period
 		self.end=end
 
+	def is_oneoff(self):
+		return self.end is None
+
 	def is_recurring(self):
-		return self.end is not None
+		return not self.is_oneoff()
 	
 	def shoot(self):
 		self.func(self.args)
@@ -54,7 +59,7 @@ class Scheduler:
 		while self.__keep_running():
 			event=self.events[0]
 			now=dt.datetime.now()
-			print "checking %s..."%(now)
+			#print "checking %s..."%(now)
 			if now>=event.start:
 				event.shoot()
 				hq.heappop(self.events) 
