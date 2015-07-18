@@ -7,7 +7,8 @@ import time
 class Event:
 	def __init__(self, start, func, args, period=None, end=None):
 		if (period is None and end is not None) or (period is not None and end is None):
-			raise Exception("bad arguments period/end") 
+			raise Exception("bad arguments period/end")
+			 
 		self.start=start
 		self.func=func
 		self.args=args
