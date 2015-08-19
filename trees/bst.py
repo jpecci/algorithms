@@ -55,7 +55,7 @@ class BST:
 				right_d=helper(tree.right, d+1) if tree.right  else 0
 				return max(left_d, right_d)
 
-		return helper(self.root, 1) if self.root else 0x
+		return helper(self.root, 1) if self.root else 0
 
 	def __add(self, node, subtree):
 		if  self.root is None:
@@ -209,7 +209,7 @@ class BST:
 		output=self.traverse(order='in')
 		return output
 	"""
-	
+
 if __name__=="__main__":
 	t=BST()
 	t.add(Node(10))
