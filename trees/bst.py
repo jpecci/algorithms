@@ -25,7 +25,8 @@ class Node:
 		return self.__str__()
 
 class BST:
-	"""Binary Search Tree"""
+	"""Binary Search Tree
+	A tree is just a pointer to the root Node."""
 
 	def __init__(self):
 		self.root=None
@@ -48,12 +49,13 @@ class BST:
 			A one node tree has depth=1"""
 		def helper(tree, d):
 			if tree.isLeaf():
-				return d+1
+				return d
 			else:
 				left_d=helper(tree.left, d+1) if tree.left else 0
 				right_d=helper(tree.right, d+1) if tree.right  else 0
 				return max(left_d, right_d)
-		return helper(self.root, 0)
+
+		return helper(self.root, 1) if self.root else 0x
 
 	def __add(self, node, subtree):
 		if  self.root is None:
@@ -202,11 +204,12 @@ class BST:
 		if node is None:
 			return 0
 		return 1+BST.size(node.left)+BST.size(node.right)
-
+	"""
 	def __str__(self):
 		output=self.traverse(order='in')
 		return output
-
+	"""
+	
 if __name__=="__main__":
 	t=BST()
 	t.add(Node(10))
