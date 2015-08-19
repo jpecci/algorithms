@@ -43,6 +43,18 @@ class BST:
 	def add(self, node):
 		self.__add(node,self.root)
 	
+	def depth(self):
+		"""find the maximum depth of the tree. 
+			A one node tree has depth=1"""
+		def helper(tree, d):
+			if tree.isLeaf():
+				return d+1
+			else:
+				left_d=helper(tree.left, d+1) if tree.left else 0
+				right_d=helper(tree.right, d+1) if tree.right  else 0
+				return max(left_d, right_d)
+		return helper(self.root, 0)
+
 	def __add(self, node, subtree):
 		if  self.root is None:
 			self.root=node
@@ -207,6 +219,7 @@ if __name__=="__main__":
 	t.add(Node(7))
 	t.add(Node(3))
 	print "size: ",BST.size(t.root)
+	print "depth: ",t.depth()
 	print "find 8",t.find(Node(8),t.root)
 	print "find 6",t.find(Node(6),t.root)
 	print "find 13",t.find(Node(13),t.root)
@@ -235,3 +248,4 @@ if __name__=="__main__":
 
 	print "size: ",BST.size(t.root)
 	
+	print "depth: ",t.depth()
