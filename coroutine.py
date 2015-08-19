@@ -47,7 +47,43 @@ def consumer():
 	except GeneratorExit as e:
 		print "All closed"
 
+"""
+This could be implemented with simple generators:
+The difference is that generators pull data, while
+coroutines push the data. Also with coroutines you can 
+send the data to multiple steps in paraller (they provide more 
+flexible routing options)
 
+ 
+def producer(file):
+	with open(file) as fp:
+		for line in fp:
+			for word in line.split(" "):
+				print "producer"
+				yield word
+
+def filter1(iterator):
+	for word in iterator:	
+		print "filter1"		
+		word_lower=word.lower()
+		yield word_lower 	
+
+def filter2(pattern, iterator): 
+	for word in iterator:
+		print "filter2"
+		if pattern in word:
+				yield word 
+
+def consumer(iterator): 
+	for word in iterator:
+		print "consumer"
+		print word
+	
+
+file="/Users/jacopo/Downloads/alice.txt"
+consumer(filter2("dog",filter1(producer(file))))
+
+"""
 
 if __name__=="__main__":
 
