@@ -8,6 +8,10 @@ class Node:
 		return self.parent is None
 	def isLeaf(self):
 		return self.left is None and self.right is None
+	def hasLeftChild(self):
+		return self.left is not None
+	def hasRightChild(self):
+		return self.right is not None
 	def isLeftChild(self):
 		if self.isRoot():
 			return False
@@ -51,11 +55,11 @@ class BST:
 			if tree.isLeaf():
 				return d
 			else:
-				left_d=helper(tree.left, d+1) if tree.left else 0
-				right_d=helper(tree.right, d+1) if tree.right  else 0
-				return max(left_d, right_d)
+				d_left=helper(tree.left, d+1) if tree.hasLeftChild() else 0
+				d_right=helper(tree.right, d+1) if tree.hasRightChild() else 0
+				return max(d_left, d_right)
 
-		return helper(self.root, 1) if self.root else 0
+		return helper(self.root, 1) if not self.isEmpty() else 0
 
 	def __add(self, node, subtree):
 		if  self.root is None:
@@ -204,12 +208,19 @@ class BST:
 		if node is None:
 			return 0
 		return 1+BST.size(node.left)+BST.size(node.right)
-	"""
+	def isEmpty(self):
+		return self.root is None
+	
 	def __str__(self):
-		output=self.traverse(order='in')
-		return output
-	"""
-
+		ans="["
+		for node in self.traverse(order='in'):
+			ans+=node
+			ans+="; "
+		ans+="]"
+		return ans
+	def __repr__(self):
+		return self.__str__()
+	
 if __name__=="__main__":
 	t=BST()
 	t.add(Node(10))
