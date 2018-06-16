@@ -32,6 +32,16 @@ class MonthPeriod:
     def __hash__(self):
         return hash(self.month) + hash(self.year)
 
+'''
+Extract sub category using the first hash tag
+'''
+def extract_sub_category(notes):
+    sub_categories = filter(lambda w: w.startswith('#'), notes.split())
+    if len(sub_categories) > 0:
+        first = sub_categories[0]
+        return first[1:].lower() # trim the hash character
+    return 'general'
+
 def build_full_category(base_category, sub_category):
 
     return base_category+'-'+sub_category
@@ -43,17 +53,9 @@ class Record:
         self.amount = amount
         self.base_category = base_category
         self.sub_category = sub_category
+
         self.full_category = build_full_category(base_category, sub_category)
-
         self.period = MonthPeriod(ts.month, ts.year)
-
-
-def extract_sub_category(notes):
-    sub_categories = filter(lambda w: w.startswith('#'), notes.split())
-    if len(sub_categories) > 0:
-        first = sub_categories[0]
-        return first[1:].lower() # trim the hash character
-    return 'general'
 
 
 with open(file, 'r') as fp:
@@ -68,6 +70,7 @@ for index, row in data.iterrows():
     notes = row['notes']
     description = row['description']
 
+    #category may be an empty string
     if amount >= 0:
         category = 'incoming'
     elif "Transfer to pot" in description:
@@ -78,7 +81,6 @@ for index, row in data.iterrows():
         category = 'N/A'
 
     records.append(Record(ts, amount, category, extract_sub_category(notes)))
-
 
 records = [r for r in records if r.ts.year >= FROM_YEAR]
 
@@ -99,9 +101,9 @@ for period in periods:
 
 records = sorted(records, key=lambda r: r.period)
 for period, xs in it.groupby(records, key=lambda r: r.period):
-    for sorting_cat in (lambda r: r.full_category, lambda r: r.base_category):
-        xs = sorted(xs, key=sorting_cat)
-        for cat, ys in it.groupby(xs, key=sorting_cat):
+    for cat_to_sort in (lambda r: r.base_category, lambda r: r.full_category):
+        xs = sorted(xs, key=cat_to_sort)
+        for cat, ys in it.groupby(xs, key=cat_to_sort):
             totals[period][cat] = sum(y.amount for y in ys)
 
 
@@ -119,7 +121,7 @@ for period in periods:
     totals_per_period[period] = sum(amounts)
 
 
-#print all --------------
+#format output --------------
 def format_line(caption, values, sum, avg):
     return "%-13s:"%caption + "\t".join("%9s"% v for v in values) + "%9s"%sum + "%9s"%avg
 
