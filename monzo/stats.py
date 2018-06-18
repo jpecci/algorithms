@@ -33,9 +33,9 @@ class MonthPeriod:
         return hash(self.month) + hash(self.year)
 
 '''
-Extract sub category using the first hash tag
+Generate sub category using the first hash tag
 '''
-def extract_sub_category(notes):
+def generate_sub_category(notes):
     sub_categories = filter(lambda w: w.startswith('#'), notes.split())
     if len(sub_categories) > 0:
         first = sub_categories[0]
@@ -58,29 +58,25 @@ class Record:
         self.period = MonthPeriod(ts.month, ts.year)
 
 
-with open(file, 'r') as fp:
-    data = pd.read_csv(fp, parse_dates=['created']).fillna(value={'notes': '',
-                                                                  'category': ''})
-
-records = []
-for index, row in data.iterrows():
-
-    ts = row['created']
-    amount = row['amount']
-    notes = row['notes']
-    description = row['description']
+def select_category(row):
 
     #category may be an empty string
-    if amount >= 0:
+    if row['amount'] >= 0:
         category = 'incoming'
-    elif "Transfer to pot" in description:
+    elif "Transfer to pot" in row['description']:
         category="to_pots"
     elif len(row['category']) > 0:
         category = row['category']
     else:
         category = 'N/A'
+    return category
 
-    records.append(Record(ts, amount, category, extract_sub_category(notes)))
+with open(file, 'r') as fp:
+    data = pd.read_csv(fp, parse_dates=['created']).fillna(value={'notes': '',
+                                                                  'category': ''})
+
+records = [Record(row['created'], row['amount'], select_category(row), generate_sub_category(row['notes']))
+           for index, row in data.iterrows()]
 
 records = [r for r in records if r.ts.year >= FROM_YEAR]
 
