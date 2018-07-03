@@ -6,10 +6,10 @@ import calendar
 from collections import defaultdict
 
 #parameters -------
-#filename = 'MonzoDataExport_Alltime_2018-06-15_135248.csv'
-filename = "monzo_lucia.csv"
-dir= r'/Users/jacopo/GDrive/'
+filename=
+dir=
 file = os.path.join(dir, filename)
+print "Processing file: %s"%file
 
 FROM_YEAR=2018
 #------------------
@@ -35,69 +35,70 @@ class MonthPeriod:
 '''
 Generate sub category using the first hash tag
 '''
-def generate_sub_category(notes):
-    sub_categories = filter(lambda w: w.startswith('#'), notes.split())
-    if len(sub_categories) > 0:
-        first = sub_categories[0]
+def extract_hash_category(notes):
+    hash_categories = filter(lambda w: w.startswith('#'), notes.split())
+    if len(hash_categories) > 0:
+        first = hash_categories[0]
         return first[1:].lower() # trim the hash character
     return 'general'
 
-def build_full_category(base_category, sub_category):
+def build_full_category(monzo_category, hash_category):
 
-    return base_category+'-'+sub_category
+    return monzo_category+'-'+hash_category
 
 class Record:
 
-    def __init__(self, ts, amount, base_category, sub_category):
+    def __init__(self, ts, amount, monzo_category, hash_category):
         self.ts = ts
         self.amount = amount
-        self.base_category = base_category
-        self.sub_category = sub_category
+        self.monzo_category = monzo_category
+        self.hash_category = hash_category
 
-        self.full_category = build_full_category(base_category, sub_category)
+        self.full_category = build_full_category(monzo_category, hash_category)
         self.period = MonthPeriod(ts.month, ts.year)
 
 
 def select_category(row):
 
-    #category may be an empty string
-    if row['amount'] >= 0:
-        category = 'incoming'
-    elif "Transfer to pot" in row['description']:
-        category="to_pots"
-    elif len(row['category']) > 0:
-        category = row['category']
+    category = row['category']
+
+    if row['amount'] < 0:
+        if "Transfer to pot" in row['description']:
+            category="to_pots"
+
     else:
-        category = 'N/A'
+        if len(row['category']) == 0:
+            category = 'incoming'
+
     return category
 
 with open(file, 'r') as fp:
     data = pd.read_csv(fp, parse_dates=['created']).fillna(value={'notes': '',
                                                                   'category': ''})
 
-records = [Record(row['created'], row['amount'], select_category(row), generate_sub_category(row['notes']))
+records = [Record(row['created'], row['amount'], select_category(row), extract_hash_category(row['notes']))
            for index, row in data.iterrows()]
 
 records = [r for r in records if r.ts.year >= FROM_YEAR]
 
 periods = sorted(set(r.period for r in records))
-base_categories = set(r.base_category for r in records)
+monzo_categories = set(r.monzo_category for r in records)
 full_categories = set(r.full_category for r in records)
 
-base2sub_cats=defaultdict(set)  # establish the hierarchy
+monzo2hash_cats=defaultdict(set)  # establish the hierarchy
 for r in records:
-    base2sub_cats[r.base_category].add(r.sub_category)
+    monzo2hash_cats[r.monzo_category].add(r.hash_category)
 
 totals = {}
 for period in periods:
     totals[period] = {}
-    for cat in it.chain(base_categories, full_categories):
+    for cat in it.chain(monzo_categories, full_categories):
         totals[period][cat] = 0
 
 
 records = sorted(records, key=lambda r: r.period)
 for period, xs in it.groupby(records, key=lambda r: r.period):
-    for cat_to_sort in (lambda r: r.base_category, lambda r: r.full_category):
+    for cat_to_sort in (lambda r: r.monzo_category, lambda r: r.full_category):
         xs = sorted(xs, key=cat_to_sort)
         for cat, ys in it.groupby(xs, key=cat_to_sort):
             totals[period][cat] = sum(y.amount for y in ys)
@@ -105,7 +106,7 @@ for period, xs in it.groupby(records, key=lambda r: r.period):
 
 totals_per_category ={}
 avgs_per_category ={}
-for cat in it.chain(base_categories, full_categories):
+for cat in it.chain(monzo_categories, full_categories):
     amounts = [totals[period][cat] for period in totals.keys()]
     total = sum(amounts)
     totals_per_category[cat] = total
@@ -113,7 +114,7 @@ for cat in it.chain(base_categories, full_categories):
 
 totals_per_period = {}
 for period in periods:
-    amounts = [totals[period][cat] for cat in base_categories if cat!="incoming"] #sum over outgoing base_categories only
+    amounts = [totals[period][cat] for cat in monzo_categories if cat!="incoming"] #sum over outgoing base_categories only
     totals_per_period[period] = sum(amounts)
 
 
@@ -123,22 +124,22 @@ def format_line(caption, values, sum, avg):
 
 print format_line("Period", periods, "Sum", "Avg")+"\n"
 
-sorted_base_categories = sorted(base_categories,
+sorted_monzo_categories = sorted(monzo_categories,
                                 key=lambda c: totals_per_category[c])
 
-for base_cat in sorted_base_categories:
+for monzo_cat in sorted_monzo_categories:
 
-    tot = "%.0f"%totals_per_category[base_cat]
-    avg = "%.0f"%avgs_per_category[base_cat]
-    values = ["%.0f"%totals[period][base_cat] for period in periods]
-    print format_line(base_cat.upper(), values, tot, avg)
+    tot = "%.0f"%totals_per_category[monzo_cat]
+    avg = "%.0f"%avgs_per_category[monzo_cat]
+    values = ["%.0f"%totals[period][monzo_cat] for period in periods]
+    print format_line(monzo_cat.upper(), values, tot, avg)
 
-    sorted_sub_categories = sorted(base2sub_cats[base_cat],
-                                   key=lambda sub_cat: totals_per_category[build_full_category(base_cat,sub_cat)])
-    if len(sorted_sub_categories) > 1:
-        for sub_cat in sorted_sub_categories:
-            cat = "   %s"%sub_cat
-            full_cat = build_full_category(base_cat, sub_cat)
+    sorted_hash_categories = sorted(monzo2hash_cats[monzo_cat],
+                                   key=lambda h_cat: totals_per_category[build_full_category(monzo_cat,h_cat)])
+    if len(sorted_hash_categories) > 1:
+        for hash_cat in sorted_hash_categories:
+            cat = "   %s"%hash_cat
+            full_cat = build_full_category(monzo_cat, hash_cat)
             tot = "%.0f"%totals_per_category[full_cat]
             avg = "%.0f"%avgs_per_category[full_cat]
             values = ["%.0f"%totals[period][full_cat] for period in periods]
